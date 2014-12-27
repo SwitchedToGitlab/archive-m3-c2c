@@ -27,13 +27,14 @@ class Request_handler():
     def GET(self):
         logging.debug('GET called')
         data = web.input()
-        logging.debug(data)
-        shit = AMI()
-        shit.dial(
-            data.ext,
-            data.cid,
-            data.phone_num
-        )
+        logging.debug(data.extension)
+        logging.debug(data.callerid)
+        logging.debug(data.phone)
+        call = AMI()
+        call.dial(
+            data.extension,
+            data.callerid,
+            data.phone)
 
 
 class AMI(object):
@@ -67,22 +68,25 @@ class AMI(object):
         # Log our parsed output
         for category in config.categories:
             if category.name != 'general':
-                user = 'admin'
-                host = 'localhost'
-                self.host = host
-                self.user = user
-                secret = 'admin'
-                self.secret = secret
-                logging.debug('User: %s' % user)
-                logging.debug('Pass: %s' % secret)
+                self.user = category.name
+                # DEBUG: This section is strictly for debugging.
+                # host = 'localhost'
+                # user = 'c2c'
+                # secret = 'c2c'
+                # self.host = host
+                # self.user = user
+                # self.secret = secret
+                logging.debug('User: %s' % self.user)
+                # logging.debug('Pass: %s' % self.secret)
+                # End debug section.
             else:
                 logging.debug('Category name: %s' % category.name)
-
-        for item in category.items:
-            logging.debug('%s = %s' % (item.name, item.value))
+        #for (item.name == 'secret') in category.items:
+        #    secret = item.value
+        #    self.secret = item.value
 
     def dial(self, ext, cid, phone_num):
-        logging.debug('EXEC')
+        logging.debug('DIAL')
         pass
 
     def auth(self):
@@ -119,19 +123,11 @@ class AMI(object):
             sys.exit(1)
 
 
-def test_ami(name):
-    logging.debug('test_AMI: %s' % name)
-    name.auth()
-    logging.debug('Auth OK')
-
-
 if __name__ == "__main__":
     try:
         logging.debug('INIT %s', datetime.now())
         ast = AMI()
-        # fuck.conf()
         logging.debug('ast has been created.')
-        test_ami(ast)
         logging.debug('Passed the calls')
         app.run()
     except (KeyboardInterrupt, SystemExit):
