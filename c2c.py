@@ -23,12 +23,6 @@ app = web.application(urls, globals())
 server_url = 'http://localhost:8080'
 
 
-def test_ami(name):
-    logging.debug('test_AMI: %s' % name)
-    name.auth()
-    logging.debug('Auth OK')
-
-
 class Request_handler():
     def GET(self):
         logging.debug('GET called')
@@ -62,7 +56,7 @@ class AMI(object):
         logging.debug('We have reached the configurator')
         try:
             config = asterisk.config.Config(
-                '/etc/asterisk/manager.conf')
+                '/etc/asterisk/manager_custom.conf')
         except asterisk.config.ParseError, (line, reason):
             logging.debug('Parse Error line: %s: %s' % (line, reason))
             sys.exit(1)
@@ -108,7 +102,9 @@ class AMI(object):
 
             # get a status report
             response = manager.status()
+            logging.debug(response)
             manager.logoff()
+            logging.debug('Logging off')
 
         except asterisk.manager.ManagerSocketException, (errno, reason):
             logging.debug('Error connecting to the manager: %s' % reason)
@@ -121,6 +117,12 @@ class AMI(object):
         except asterisk.manager.ManagerException, reason:
             logging.debug('Error: %s' % reason)
             sys.exit(1)
+
+
+def test_ami(name):
+    logging.debug('test_AMI: %s' % name)
+    name.auth()
+    logging.debug('Auth OK')
 
 
 if __name__ == "__main__":
