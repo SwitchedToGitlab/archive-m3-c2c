@@ -62,7 +62,7 @@ class AMI(object):
         logging.debug('We have reached the configurator')
         try:
             config = asterisk.config.Config(
-                '/Users/sbrady/workspace/manager.conf')
+                '/etc/asterisk/manager.conf')
         except asterisk.config.ParseError, (line, reason):
             logging.debug('Parse Error line: %s: %s' % (line, reason))
             sys.exit(1)
