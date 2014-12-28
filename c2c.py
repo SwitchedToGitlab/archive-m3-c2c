@@ -24,6 +24,8 @@ server_url = 'http://localhost:8080'
 
 
 class Request_handler():
+    # Class designeed for HTTP interaction with applications seeking to
+    # to use this binary as an application gateway.
     def GET(self):
         logging.debug('GET called')
         data = web.input()
@@ -38,6 +40,7 @@ class Request_handler():
 
 
 class AMI(object):
+    # Class designed for interacting wtih the Asterisk AMI.
 
     def __init__(self):
         logging.debug('We are at AMI.__init__')
@@ -81,7 +84,8 @@ class AMI(object):
                 # End debug section.
             else:
                 logging.debug('Category name: %s' % category.name)
-        #for (item.name == 'secret') in category.items:
+
+        # for (item.name == 'secret') in category.items:
         #    secret = item.value
         #    self.secret = item.value
 
@@ -126,9 +130,12 @@ class AMI(object):
 if __name__ == "__main__":
     try:
         logging.debug('INIT %s', datetime.now())
+        # Create the first instance of AMI.
         ast = AMI()
         logging.debug('ast has been created.')
         logging.debug('Passed the calls')
+        # This allows us to start the loop for the HTTP listener. Events are
+        # triggered by applications here.
         app.run()
     except (KeyboardInterrupt, SystemExit):
         logging.warning('EXCEPTION CAUGHT, Exiting.')
