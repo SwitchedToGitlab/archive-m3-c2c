@@ -17,16 +17,16 @@ logging.basicConfig(
 
 # Note that we eventually want to make this more of an ambiguous handler,
 # accepting a variety of variables
-def call_handler(action_type, extension, callerid, phone):
+def call_handler(action, endpt, callerid, destination):
     # This function is the call handler. it walks a call from inception to
     # termination.
     status = ast.status()
     logging.debug('Ast status: %s' % status)
-    ast.dial(action_type, extension, callerid, phone)
+    ast.dial(action, endpt, callerid, destination)
     pass
 
 urls = (
-    '/asteriskPBX', 'Request_handler'
+    '/c2c', 'Request_handler'
     )
 
 app = web.application(urls, globals())
@@ -41,24 +41,24 @@ class Request_handler():
         logging.debug('GET has been received!')
         data = web.input()
         logging.debug(data.type)
-        logging.debug(data.extension)
+        logging.debug(data.endpt)
         logging.debug(data.callerid)
-        logging.debug(data.phone)
+        logging.debug(data.destination)
         # call = AMI()
         # call.dial(
-        #    data.extension,
+        #    data.endpt,
         #    data.callerid,
-        #    data.phone)
-        action_type = data.type
-        extension = data.extension
+        #    data.destination)
+        action = data.action
+        endpt = data.endpt
         callerid = data.callerid
-        phone = data.phone
+        destination = data.destination
 
         call = AMI()
         call.dial(
-            data.extension,
+            data.endpt,
             data.callerid,
-            data.phone)
+            data.destination)
 
 
 class AMI(object):
@@ -113,7 +113,7 @@ class AMI(object):
         #    secret = item.value
         #    self.secret = item.value
 
-    def dial(self, ext, cid, phone_num):
+    def dial(self, ext, cid, destination_num):
         logging.debug('Dial has been fired!')
         # auth = self.auth()
         if (self.status == 'ok'):
@@ -121,11 +121,12 @@ class AMI(object):
             manager = asterisk.manager.Manager()
             manager.connect(self.host)
             response = manager.status
-            manager.originate(ext, cid, phone_num)
+            manager.originate
+            manager.originate(1, ext, from-internal, 1, 30, cid, destination_num)
             logging.debug('Response: %s' % response)
             logging.debug('Hostname: %s' % manager.hostname)
             logging.debug('Sippeers: %s' % manager.sippeers)
-        # call.originate(ext, cid, phone_num)
+        # call.originate(ext, cid, destination_num)
         else:
             logging.debug('Not OK %s' % self.status)
         # we authenticate and everything is fine - we need a return system
