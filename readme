@@ -1,5 +1,0 @@
-This python server is designed to respond to GET requests made by an
-application and take those parameters passed to it in the GET request and use
-those to create an AMI connection with Asterisk. 
-
-This application will being by initiating a call.

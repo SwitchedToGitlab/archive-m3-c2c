@@ -14,24 +14,46 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s]:%(process)d:%(levelname)s : %(funcName)s %(message)s')
 
+
+# Note that we eventually want to make this more of an ambiguous handler,
+# accepting a variety of variables
+def call_handler(action_type, extension, callerid, phone):
+    # This function is the call handler. it walks a call from inception to
+    # termination.
+    status = ast.status()
+    logging.debug('Ast status: %s' % status)
+    ast.dial(action_type, extension, callerid, phone)
+    pass
+
 urls = (
-    '/c2c', 'Request_handler'
+    '/asteriskPBX', 'Request_handler'
     )
 
 app = web.application(urls, globals())
 
-server_url = 'http://localhost:8080'
+logging.debug('Just below app')
 
 
 class Request_handler():
     # Class designeed for HTTP interaction with applications seeking to
     # to use this binary as an application gateway.
     def GET(self):
-        logging.debug('GET called')
+        logging.debug('GET has been received!')
         data = web.input()
+        logging.debug(data.type)
         logging.debug(data.extension)
         logging.debug(data.callerid)
         logging.debug(data.phone)
+        # call = AMI()
+        # call.dial(
+        #    data.extension,
+        #    data.callerid,
+        #    data.phone)
+        action_type = data.type
+        extension = data.extension
+        callerid = data.callerid
+        phone = data.phone
+
         call = AMI()
         call.dial(
             data.extension,
@@ -43,9 +65,11 @@ class AMI(object):
     # Class designed for interacting wtih the Asterisk AMI.
 
     def __init__(self):
-        logging.debug('We are at AMI.__init__')
+        logging.debug('AMI Initializer fired!')
         self.conf()
         logging.debug('self.conf set.')
+        self.auth()
+        logging.debug('self.auth set')
 
     def handle_shutdown(self, event, manager):
         logging.debug("Received shutdown event")
@@ -73,9 +97,9 @@ class AMI(object):
             if category.name != 'general':
                 self.user = category.name
                 # DEBUG: This section is strictly for debugging.
-                # host = 'localhost'
+                self.host = 'localhost'
                 # user = 'c2c'
-                # secret = 'c2c'
+                self.secret = 'c2c'
                 # self.host = host
                 # self.user = user
                 # self.secret = secret
@@ -90,11 +114,27 @@ class AMI(object):
         #    self.secret = item.value
 
     def dial(self, ext, cid, phone_num):
-        logging.debug('DIAL')
+        logging.debug('Dial has been fired!')
+        # auth = self.auth()
+        if (self.status == 'ok'):
+            logging.debug('Status 2: %s' % self.status)
+            manager = asterisk.manager.Manager()
+            manager.connect(self.host)
+            response = manager.status
+            manager.originate(ext, cid, phone_num)
+            logging.debug('Response: %s' % response)
+            logging.debug('Hostname: %s' % manager.hostname)
+            logging.debug('Sippeers: %s' % manager.sippeers)
+        # call.originate(ext, cid, phone_num)
+        else:
+            logging.debug('Not OK %s' % self.status)
+        # we authenticate and everything is fine - we need a return system
+            # for auth.
+
         pass
 
     def auth(self):
-        logging.debug('AMI.auth')
+        logging.debug('We have fired the authenticator!')
         manager = asterisk.manager.Manager()
         # connect to the manager
         try:
@@ -110,9 +150,13 @@ class AMI(object):
 
             # get a status report
             response = manager.status()
-            logging.debug(response)
-            manager.logoff()
-            logging.debug('Logging off')
+            logging.debug('Response: %s ' % response)
+            logging.debug(manager.status())
+            test = manager.sippeers()
+            logging.debug('Sippeers: %s' % test)
+            # This is the supposed return value.
+            self.status = 'ok'
+            logging.debug(self.status)
 
         except asterisk.manager.ManagerSocketException, (errno, reason):
             logging.debug('Error connecting to the manager: %s' % reason)
@@ -126,6 +170,18 @@ class AMI(object):
             logging.debug('Error: %s' % reason)
             sys.exit(1)
 
+    def status(self):
+        # Intended to get a status report from the server, to verify that
+        # we are still connected.
+        manager = asterisk.manager.Manager()
+        response = manager.status
+        logging.debug('Status: %s' % response)
+
+    def logoff(self):
+        # Logs off the manager connection.
+        manager = asterisk.manager.Manager()
+        manager.logoff()
+        logging.debug('Logging off')
 
 if __name__ == "__main__":
     try:
@@ -133,9 +189,9 @@ if __name__ == "__main__":
         # Create the first instance of AMI.
         ast = AMI()
         logging.debug('ast has been created.')
-        logging.debug('Passed the calls')
         # This allows us to start the loop for the HTTP listener. Events are
         # triggered by applications here.
         app.run()
+        logging.debug('Just below run')
     except (KeyboardInterrupt, SystemExit):
         logging.warning('EXCEPTION CAUGHT, Exiting.')
