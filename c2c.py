@@ -26,14 +26,40 @@ def call_handler(action, endpt, callerid, destination):
     ast.dial(action, endpt, callerid, destination)
     pass
 
+
 urls = (
-    '/c2c', 'call_handler'
+    '/c2c', 'Request_handler'
     )
 
 app = web.application(urls, globals())
 
 logging.debug('Just below app')
 
+class Request_handler():
+    # Class designeed for HTTP interaction with applications seeking to
+    # to use this binary as an application gateway.
+    def GET(self):
+        logging.debug('GET has been received!')
+        data = web.input()
+        logging.debug(data.type)
+        logging.debug(data.extension)
+        logging.debug(data.callerid)
+        logging.debug(data.phone)
+        # call = AMI()
+        # call.dial(
+        #    data.extension,
+        #    data.callerid,
+        #    data.phone)
+        action_type = data.type
+        extension = data.extension
+        callerid = data.callerid
+        phone = data.phone
+
+        call = AMI()
+        call.dial(
+            data.extension,
+            data.callerid,
+            data.phone)
 
 class AMI(object):
     # Class designed for interacting wtih the Asterisk AMI.
