@@ -10,7 +10,7 @@ import asterisk.manager
 import asterisk.config
 
 logging.basicConfig(
-    filename='log/c2c.log',
+    filename='/var/log/c2c/debug.log',
     level=logging.DEBUG,
     format='%(asctime)s]:%(process)d:%(levelname)s : %(funcName)s %(message)s')
 
@@ -18,15 +18,6 @@ logging.debug('INIT %s', datetime.now())
 
 # Note that we eventually want to make this more of an ambiguous handler,
 # accepting a variety of variables
-
-#def call_handler(action, endpt, caller_id, destination):
-    ## This function is the call handler. it walks a call from inception to
-    ## termination.
-    #status = ast.status()
-    #logging.debug('Ast status: %s' % status)
-    #ast.dial(action, endpt, caller_id, destination)
-    #pass
-
 
 urls = (
     '/c2c', 'Request_handler'
