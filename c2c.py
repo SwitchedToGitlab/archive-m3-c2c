@@ -95,7 +95,7 @@ class AMI(object):
             if category.name != 'general':
                 self.user = category.name
                 # DEBUG: This section is strictly for debugging.
-                self.host = '74.222.51.243'
+                self.host = 'localhost'
                 # user = 'c2c'
                 self.secret = 'c2c'
                 # self.host = host
@@ -115,6 +115,7 @@ class AMI(object):
         manager = asterisk.manager.Manager()
         manager.connect(self.host)
         manager.login(self.user, self.secret)
+        logging.debug(self.status)
         logging.debug('Calling originate')
         context = 'from-internal'
         priority = '1'
