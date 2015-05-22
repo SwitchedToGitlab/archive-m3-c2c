@@ -5,3 +5,5 @@ log
 etc
 .vagrant
 ws
+Vagrant*
+.gitignore
