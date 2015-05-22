@@ -10,7 +10,7 @@ import asterisk.manager
 import asterisk.config
 
 logging.basicConfig(
-    filename='/var/log/asterisk/c2c.log',
+    filename='log/c2c.log',
     level=logging.DEBUG,
     format='%(asctime)s]:%(process)d:%(levelname)s : %(funcName)s %(message)s')
 
@@ -41,25 +41,26 @@ class Request_handler():
     def GET(self):
         logging.debug('GET has been received!')
         data = web.input()
-        logging.debug(data.type)
-        logging.debug(data.extension)
+        logging.debug(data.action)
+        logging.debug(data.endpt)
         logging.debug(data.callerid)
-        logging.debug(data.phone)
+        logging.debug(data.destination)
         # call = AMI()
         # call.dial(
-        #    data.extension,
+        #    data.endpt,
         #    data.callerid,
-        #    data.phone)
-        action_type = data.type
-        extension = data.extension
+        #    data.destination)
+        action = data.action
+        endpt = data.endpt
         callerid = data.callerid
-        phone = data.phone
-
+        destination = data.destination
+        print(data.action, data.endpt, data.callerid, data.destination)
         call = AMI()
         call.dial(
-            data.extension,
+            data.endpt,
             data.callerid,
-            data.phone)
+            data.destination)
+
 
 class AMI(object):
     # Class designed for interacting wtih the Asterisk AMI.
@@ -97,7 +98,7 @@ class AMI(object):
             if category.name != 'general':
                 self.user = category.name
                 # DEBUG: This section is strictly for debugging.
-                self.host = 'localhost'
+                self.host = '72.216.234.100'
                 # user = 'c2c'
                 self.secret = 'c2c'
                 # self.host = host
@@ -113,27 +114,36 @@ class AMI(object):
         #    secret = item.value
         #    self.secret = item.value
 
-    def dial(self, endpt, cid, destination):
-        logging.debug('Dial has been fired!')
-        # auth = self.auth()
-        if (self.status == 'ok'):
-            logging.debug('Status 2: %s' % self.status)
-            manager = asterisk.manager.Manager()
-            context = 'from-internal'
-            manager.connect(self.host)
-            response = manager.status
-            manager.originate
-            manager.originate(pjsip/5647, endpt, context, 1, 30, cid, destination_num)
-            logging.debug('Response: %s' % response)
-            logging.debug('Hostname: %s' % manager.hostname)
-            logging.debug('Sippeers: %s' % manager.sippeers)
-        # call.originate(ext, cid, destination_num)
-        else:
-            logging.debug('Not OK %s' % self.status)
-        # we authenticate and everything is fine - we need a return system
-            # for auth.
+    #def dial(self, endpt, cid, destination):
+        #logging.debug('Dial has been fired!')
+        ## auth = self.auth()
+        #if (self.status == 'ok'):
+            #logging.debug('Status 2: %s' % self.status)
+            #manager = asterisk.manager.Manager()
+            #context = 'UA'
+            ## Just for debugging.
+            #endpt2 = 'SIP/4005'
+            #d = '3033786762'
+            #priority = '1'
+            #timeout = '3000'
+            #caller_id = '1112223333'
+            #manager.connect(self.host)
+            #response = manager.status
+            #manager.originate(
+                #endpt2 ,
+                #destination ,
+                #context = 'UA' ,
+                #priority = '1' ,
+                #timeout = '30000' ,
+                #caller_id = '1112223333' ,
+                #)
+            #print(endpt2, d, context, priority, timeout, caller_id)
+        #else:
+            #logging.debug('Not OK %s' % self.status)
+        ## we authenticate and everything is fine - we need a return system
+            ## for auth.
 
-        pass
+        #pass
 
     def auth(self):
         logging.debug('We have fired the authenticator!')
@@ -154,6 +164,17 @@ class AMI(object):
             response = manager.status()
             logging.debug('Response: %s ' % response)
             logging.debug(manager.status())
+            endpt2 = 'SIP/4005'
+            destination = '3033786762'
+            manager.originate(
+                endpt2 ,
+                destination ,
+                context = 'UA' ,
+                priority = '1' ,
+                timeout = '30000' ,
+                caller_id = '1112223333' ,
+                )
+
             test = manager.sippeers()
             logging.debug('Sippeers: %s' % test)
             # This is the supposed return value.
