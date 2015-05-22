@@ -3,7 +3,6 @@
 import web
 import sys
 import logging
-# import time
 from datetime import datetime
 import asterisk
 import asterisk.manager
@@ -24,25 +23,22 @@ urls = (
     )
 app = web.application(urls, globals())
 
-logging.debug('Just below app')
-
 class Request_handler(object):
     # Class designeed for HTTP interaction with applications seeking to
     # to use this binary as an application gateway.
     def __init__(self):
         logging.debug('Init Request_handler instance')
 
+    # This method is fired when the webserver receives a GET event,
+    # then creates the call. Eventually this logic will be passed off
+    # somewhere else, but for now for the sake of simplicity it's here.
     def GET(self):
-        logging.debug('GET has been received!')
+        logging.debug('GET received!')
         data = web.input()
-        # action = data.action
         action = data.action
-        # endpt = data.endpt
         tech = 'PJSIP/'
         channel = tech + data.endpt
-        # caller_id = data.callerid
         caller_id = data.callerid
-        # destination = data.destination
         destination = data.destination
         logging.debug('Setting up the call')
         call = AMI()
@@ -60,6 +56,7 @@ class AMI(object):
         logging.debug('AMI Initializer fired!')
         self.conf()
         logging.debug('INIT')
+
     def handle_shutdown(self, event, manager):
         logging.debug("Received shutdown event")
         manager.close
@@ -98,12 +95,11 @@ class AMI(object):
             else:
                 logging.debug('Category name: %s' % category.name)
 
-        # for (item.name == 'secret') in category.items:
-        #    secret = item.value
-        #    self.secret = item.value
+
 
     def dial(self, channel, caller_id, destination):
-        manager = asterisk.manager.Manager()
+        logging.debug('INIT')
+	manager = asterisk.manager.Manager()
         manager.connect(self.host)
         manager.login(self.user, self.secret)
         logging.debug(self.status)
@@ -133,11 +129,7 @@ class AMI(object):
 
 if __name__ == "__main__":
     try:
-        logging.debug('Start of the main loop')
-        # Create the first instance of AMI.
-        # This allows us to start the loop for the HTTP listener. Events are
-        # triggered by applications here.
+        logging.debug('INIT')
         app.run()
-        logging.debug('Just after app.run')
     except (KeyboardInterrupt, SystemExit):
         logging.warning('EXCEPTION CAUGHT, Exiting.')
