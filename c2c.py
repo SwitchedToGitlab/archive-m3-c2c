@@ -38,7 +38,7 @@ class Request_handler(object):
         # action = data.action
         action = data.action
         # endpt = data.endpt
-        tech = 'SIP/'
+        tech = 'PJSIP/'
         channel = tech + data.endpt
         # caller_id = data.callerid
         caller_id = data.callerid
