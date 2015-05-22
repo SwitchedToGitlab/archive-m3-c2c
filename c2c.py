@@ -14,54 +14,52 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s]:%(process)d:%(levelname)s : %(funcName)s %(message)s')
 
+logging.debug('INIT %s', datetime.now())
 
 # Note that we eventually want to make this more of an ambiguous handler,
 # accepting a variety of variables
 
-def call_handler(action, endpt, callerid, destination):
-    # This function is the call handler. it walks a call from inception to
-    # termination.
-    status = ast.status()
-    logging.debug('Ast status: %s' % status)
-    ast.dial(action, endpt, callerid, destination)
-    pass
+#def call_handler(action, endpt, caller_id, destination):
+    ## This function is the call handler. it walks a call from inception to
+    ## termination.
+    #status = ast.status()
+    #logging.debug('Ast status: %s' % status)
+    #ast.dial(action, endpt, caller_id, destination)
+    #pass
 
 
 urls = (
     '/c2c', 'Request_handler'
     )
-
 app = web.application(urls, globals())
 
 logging.debug('Just below app')
 
-class Request_handler():
+class Request_handler(object):
     # Class designeed for HTTP interaction with applications seeking to
     # to use this binary as an application gateway.
+    def __init__(self):
+        logging.debug('Init Request_handler instance')
+
     def GET(self):
         logging.debug('GET has been received!')
         data = web.input()
-        logging.debug(data.action)
-        logging.debug(data.endpt)
-        logging.debug(data.callerid)
-        logging.debug(data.destination)
-        # call = AMI()
-        # call.dial(
-        #    data.endpt,
-        #    data.callerid,
-        #    data.destination)
+        # action = data.action
         action = data.action
-        endpt = data.endpt
-        callerid = data.callerid
+        # endpt = data.endpt
+        tech = 'SIP/'
+        channel = tech + data.endpt
+        # caller_id = data.callerid
+        caller_id = data.callerid
+        # destination = data.destination
         destination = data.destination
-        print(data.action, data.endpt, data.callerid, data.destination)
+        logging.debug('Setting up the call')
         call = AMI()
-        print('In class Request_handler, after the creation of call.')
-
         call.dial(
-            data.endpt,
-            data.callerid,
-            data.destination)
+            channel,
+            caller_id,
+            destination
+            )
 
 
 class AMI(object):
@@ -70,10 +68,7 @@ class AMI(object):
     def __init__(self):
         logging.debug('AMI Initializer fired!')
         self.conf()
-        logging.debug('self.conf set.')
-        self.auth()
-        logging.debug('self.auth set')
-
+        logging.debug('INIT')
     def handle_shutdown(self, event, manager):
         logging.debug("Received shutdown event")
         manager.close
@@ -100,7 +95,7 @@ class AMI(object):
             if category.name != 'general':
                 self.user = category.name
                 # DEBUG: This section is strictly for debugging.
-                self.host = '72.216.234.100'
+                self.host = '74.222.51.243'
                 # user = 'c2c'
                 self.secret = 'c2c'
                 # self.host = host
@@ -116,97 +111,25 @@ class AMI(object):
         #    secret = item.value
         #    self.secret = item.value
 
-    def dial(self, endpt, cid, destination):
-        logging.debug('Dial has been fired!')
-        print(endpt, cid, destintation)
-        endpt2 = 'SIP/4005'
-            destination = '3033786762'
-            manager.originate(
-                endpt2 ,
-                destination ,
-                context = 'UA' ,
-                priority = '1' ,
-                timeout = '30000' ,
-                caller_id = '1112223333' ,
-                )
+    def dial(self, channel, caller_id, destination):
+        manager = asterisk.manager.Manager()
+        manager.connect(self.host)
+        manager.login(self.user, self.secret)
+        logging.debug('Calling originate')
+        context = 'from-internal'
+        priority = '1'
+        timeout = '30000'
+        manager.originate(
+            channel ,
+            destination ,
+            context = context ,
+            priority = priority ,
+            timeout = timeout ,
+            caller_id = caller_id,
+            )
+        manager.logoff()
 
         pass
-        ## auth = self.auth()
-        #if (self.status == 'ok'):
-            #logging.debug('Status 2: %s' % self.status)
-            #manager = asterisk.manager.Manager()
-            #context = 'UA'
-            ## Just for debugging.
-            #endpt2 = 'SIP/4005'
-            #d = '3033786762'
-            #priority = '1'
-            #timeout = '3000'
-            #caller_id = '1112223333'
-            #manager.connect(self.host)
-            #response = manager.status
-            #manager.originate(
-                #endpt2 ,
-                #destination ,
-                #context = 'UA' ,
-                #priority = '1' ,
-                #timeout = '30000' ,
-                #caller_id = '1112223333' ,
-                #)
-            #print(endpt2, d, context, priority, timeout, caller_id)
-        #else:
-            #logging.debug('Not OK %s' % self.status)
-        ## we authenticate and everything is fine - we need a return system
-            ## for auth.
-
-        #pass
-
-    def auth(self):
-        logging.debug('We have fired the authenticator!')
-        manager = asterisk.manager.Manager()
-        # connect to the manager
-        try:
-            # manager.connect('host')
-            manager.connect(self.host)
-            manager.login(self.user, self.secret)
-
-            # register some callbacks
-            # shutdown
-            manager.register_event('Shutdown', self.handle_shutdown)
-            # catch all
-            manager.register_event('*', self.handle_event)
-
-            # get a status report
-            response = manager.status()
-            logging.debug('Response: %s ' % response)
-            logging.debug(manager.status())
-            #endpt2 = 'SIP/4005'
-            #destination = '3033786762'
-            #manager.originate(
-                #endpt2 ,
-                #destination ,
-                #context = 'UA' ,
-                #priority = '1' ,
-                #timeout = '30000' ,
-                #caller_id = '1112223333' ,
-                #)
-
-            test = manager.sippeers()
-            logging.debug('Sippeers: %s' % test)
-            # This is the supposed return value.
-            self.status = 'ok'
-            logging.debug(self.status)
-
-        except asterisk.manager.ManagerSocketException, (errno, reason):
-            logging.debug('Error connecting to the manager: %s' % reason)
-            sys.exit(1)
-
-        except asterisk.manager.ManagerAuthException, reason:
-            logging.debug('Error logging in to the manager: %s' % reason)
-            sys.exit(1)
-
-        except asterisk.manager.ManagerException, reason:
-            logging.debug('Error: %s' % reason)
-            sys.exit(1)
 
     def status(self):
         # Intended to get a status report from the server, to verify that
@@ -215,22 +138,14 @@ class AMI(object):
         response = manager.status
         logging.debug('Status: %s' % response)
 
-    def logoff(self):
-        # Logs off the manager connection.
-        manager = asterisk.manager.Manager()
-        manager.logoff()
-        logging.debug('Logging off')
-
 
 if __name__ == "__main__":
     try:
-        logging.debug('INIT %s', datetime.now())
+        logging.debug('Start of the main loop')
         # Create the first instance of AMI.
-        ast = AMI()
-        logging.debug('ast has been created.')
         # This allows us to start the loop for the HTTP listener. Events are
         # triggered by applications here.
         app.run()
-        logging.debug('Just below run')
+        logging.debug('Just after app.run')
     except (KeyboardInterrupt, SystemExit):
         logging.warning('EXCEPTION CAUGHT, Exiting.')
