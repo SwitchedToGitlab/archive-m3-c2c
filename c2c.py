@@ -56,6 +56,8 @@ class Request_handler():
         destination = data.destination
         print(data.action, data.endpt, data.callerid, data.destination)
         call = AMI()
+        print('In class Request_handler, after the creation of call.')
+
         call.dial(
             data.endpt,
             data.callerid,
@@ -114,8 +116,21 @@ class AMI(object):
         #    secret = item.value
         #    self.secret = item.value
 
-    #def dial(self, endpt, cid, destination):
-        #logging.debug('Dial has been fired!')
+    def dial(self, endpt, cid, destination):
+        logging.debug('Dial has been fired!')
+        print(endpt, cid, destintation)
+        endpt2 = 'SIP/4005'
+            destination = '3033786762'
+            manager.originate(
+                endpt2 ,
+                destination ,
+                context = 'UA' ,
+                priority = '1' ,
+                timeout = '30000' ,
+                caller_id = '1112223333' ,
+                )
+
+        pass
         ## auth = self.auth()
         #if (self.status == 'ok'):
             #logging.debug('Status 2: %s' % self.status)
@@ -164,16 +179,16 @@ class AMI(object):
             response = manager.status()
             logging.debug('Response: %s ' % response)
             logging.debug(manager.status())
-            endpt2 = 'SIP/4005'
-            destination = '3033786762'
-            manager.originate(
-                endpt2 ,
-                destination ,
-                context = 'UA' ,
-                priority = '1' ,
-                timeout = '30000' ,
-                caller_id = '1112223333' ,
-                )
+            #endpt2 = 'SIP/4005'
+            #destination = '3033786762'
+            #manager.originate(
+                #endpt2 ,
+                #destination ,
+                #context = 'UA' ,
+                #priority = '1' ,
+                #timeout = '30000' ,
+                #caller_id = '1112223333' ,
+                #)
 
             test = manager.sippeers()
             logging.debug('Sippeers: %s' % test)
