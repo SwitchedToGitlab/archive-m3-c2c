@@ -1,9 +1,0 @@
-*.swp
-*.pyc
-.ropeproject
-log
-etc
-.vagrant
-ws
-Vagrant*
-.gitignore
