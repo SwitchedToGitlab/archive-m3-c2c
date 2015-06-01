@@ -35,17 +35,11 @@ class Request_handler(object):
     def GET(self):
         logging.debug('GET received!')
         data = web.input()
-        action = data.action
-        tech = 'PJSIP/'
-        channel = tech + data.endpt
-        caller_id = data.callerid
-        destination = data.destination
-        logging.debug('Setting up the call')
         call = AMI()
         call.dial(
-            channel,
-            caller_id,
-            destination
+            data.endpt,
+            data.callerid,
+            data.destination
             )
 
 
@@ -97,23 +91,28 @@ class AMI(object):
 
 
 
-    def dial(self, channel, caller_id, destination):
+    def dial(self, endpt, caller_id, destination):
         logging.debug('INIT')
-	manager = asterisk.manager.Manager()
+        manager = asterisk.manager.Manager()
         manager.connect(self.host)
         manager.login(self.user, self.secret)
         logging.debug(self.status)
+        tech = 'PJSIP/'
+        channel = tech + endpt
+        logging.debug(channel)
         logging.debug('Calling originate')
         context = 'c2c'
         priority = '1'
         timeout = '30000'
+        modified_cid = 'Caesar <' + destination + '>'
+        logging.debug(modified_cid)
         manager.originate(
             channel ,
             destination ,
             context = context ,
             priority = priority ,
             timeout = timeout ,
-            caller_id = caller_id,
+            caller_id = modified_cid,
             )
         manager.logoff()
 
