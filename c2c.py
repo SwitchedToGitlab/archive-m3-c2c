@@ -104,7 +104,7 @@ class AMI(object):
         manager.login(self.user, self.secret)
         logging.debug(self.status)
         logging.debug('Calling originate')
-        context = 'from-internal'
+        context = 'c2c'
         priority = '1'
         timeout = '30000'
         manager.originate(
