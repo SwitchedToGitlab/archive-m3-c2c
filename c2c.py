@@ -36,7 +36,7 @@ class Request_handler(object):
         logging.debug('GET received!')
         data = web.input()
         call = AMI()
-        logging.debug(data.endpt)
+        logging.debug('Endpt: %s' % data.endpt)
         call.dial(
             data.endpt,
             data.callerid,
@@ -98,7 +98,7 @@ class AMI(object):
         manager.connect(self.host)
         manager.login(self.user, self.secret)
         logging.debug(self.status)
-        logging.debug(endpt)
+        logging.debug('Endpt: %s' % endpt)
         tech = 'PJSIP/'
         channel = tech + endpt
         logging.debug(channel)
