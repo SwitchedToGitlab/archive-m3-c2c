@@ -13,11 +13,24 @@
 - [License](#license)
 
 ## Introduction
+
 ## Installation
-    ### Requirements
+
+### Requirements
+Required dependencies are listed in the requirement.txt file in this directory. All required dependencies should be installed automatically by setup.py. Asterisk has some requirements as well, such as dialplan configuration and conf files. 
+
+#### Asterisk Requirements
+```asterisk/conf/c2c.conf``` has been created and needs to be installed on the client machine. In this case the phone system is using FreePBX, so extensions_custom.conf has been made that has an ```include``` statement that includes ```c2c.conf```. The dialplan there will then initiate the call based on the variables that were recieved via the Asterisk Manager Interface from a connection initiated by c2c.py. 
+
+#### Caesar Requirements
+A specific build of Caesar has been created using the form customerNEW, which has a button that activates an IE control. The IE control sends an HTTP post to this application that contains variables used for setting up the call.  
+
 ## Usage
-    ### Starting and Stopping
-    ### User Experience: What to Expect
+
+### Starting and Stopping
+
+### User Experience: What to Expect
+
 ## Troubleshooting and Logging
     <!--- TODO: Flesh this out a little more --->
     Check the supervisord logs on the system 
